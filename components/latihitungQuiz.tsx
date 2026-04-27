@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { QuestionData } from '@/utils/mathLogic';
 
 interface LatihitungQuizProps {
@@ -15,10 +15,21 @@ export default function LatihitungQuiz({
   mode, level, score, lives, questionData, onAnswer, onEndSession 
 }: LatihitungQuizProps) {
   const questionStartMsRef = useRef<number>(0);
-
+  const [timeLeft, setTimeLeft] = useState<number>(60);
   useEffect(() => {
     questionStartMsRef.current = performance.now();
   }, [questionData]);
+
+  useEffect(() => {
+    if (timeLeft <= 0) {
+      onEndSession();
+      return;
+    }
+    const interval = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [timeLeft, onEndSession]);
 
   const handleAnswerClick = (
     answer: number,
@@ -37,6 +48,7 @@ export default function LatihitungQuiz({
         <div>Level: {level}</div>
         <div>Skor: {score}</div>
         {mode === 'endless_survival' && <div>Nyawa: {"❤️".repeat(lives)}</div>}
+        {mode === 'time_attack' && <div>Waktu: {timeLeft}s</div>}
       </div>
 
       <div className="text-6xl font-bold text-center py-10">
