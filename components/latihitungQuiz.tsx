@@ -21,6 +21,8 @@ export default function LatihitungQuiz({
   }, [questionData]);
 
   useEffect(() => {
+    if (mode !== 'time_attack') return;
+
     if (timeLeft <= 0) {
       onEndSession();
       return;
@@ -29,7 +31,7 @@ export default function LatihitungQuiz({
       setTimeLeft((prev) => prev - 1);
     }, 1000);
     return () => clearInterval(interval);
-  }, [timeLeft, onEndSession]);
+  }, [mode, timeLeft, onEndSession]);
 
   const handleAnswerClick = (
     answer: number,
