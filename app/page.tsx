@@ -42,7 +42,7 @@ export default function LatihitungPage() {
     if (isCorrect && timeTaken < 10) {
       newLevel = level + 1;
       setScore(prev => prev + (10 * level)); 
-    } else if (!isCorrect || timeTaken > 20) {
+    } else if (!isCorrect) {
       newLevel = Math.max(1, level - 1);
       if (mode === 'endless_survival') {
         newLives -= 1;
