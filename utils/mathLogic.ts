@@ -4,28 +4,39 @@ export interface QuestionData {
   options: number[];
 }
 
-export function generateQuestion(level: number, negativeAnswer: boolean = false): QuestionData {
+export function generateQuestion(
+  level: number, 
+  negativeAnswer: boolean = true,
+  negativeNumber: boolean = true 
+): QuestionData {
   const maxNumber = 10 + ((level - 1) * 5); 
   
-  const num1 = Math.floor(Math.random() * maxNumber) + 1;
-  const num2 = Math.floor(Math.random() * maxNumber) + 1;
+  let num1 = Math.floor(Math.random() * maxNumber) + 1;
+  let num2 = Math.floor(Math.random() * maxNumber) + 1;
+
+  if (negativeNumber) {
+    if (Math.random() > 0.5) num1 = -num1;
+    if (Math.random() > 0.5) num2 = -num2;
+  }
   
   const isAddition = Math.random() > 0.5;
   
   let questionStr = '';
   let correctAnswer = 0;
 
+  const formatSecondNumber = (num: number) => num < 0 ? `(${num})` : `${num}`;
+
   if (isAddition) {
-    questionStr = `${num1} + ${num2}`;
+    questionStr = `${num1} + ${formatSecondNumber(num2)}`;
     correctAnswer = num1 + num2;
   } else {
-    if (negativeAnswer) {
-      questionStr = `${num1} - ${num2}`;
+    if (negativeAnswer || negativeNumber) {
+      questionStr = `${num1} - ${formatSecondNumber(num2)}`;
       correctAnswer = num1 - num2;
     } else {
       const big = Math.max(num1, num2);
       const small = Math.min(num1, num2);
-      questionStr = `${big} - ${small}`;
+      questionStr = `${big} - ${formatSecondNumber(small)}`;
       correctAnswer = big - small;
     }
   }
@@ -35,7 +46,8 @@ export function generateQuestion(level: number, negativeAnswer: boolean = false)
     const wrongAnswer = correctAnswer + (Math.floor(Math.random() * 10) - 5);
     
     const isUnique = wrongAnswer !== correctAnswer && !options.includes(wrongAnswer);
-    const isValidValue = negativeAnswer ? true : wrongAnswer >= 0;
+    
+    const isValidValue = (negativeAnswer || negativeNumber) ? true : wrongAnswer >= 0;
 
     if(isUnique && isValidValue) {
       options.push(wrongAnswer);
