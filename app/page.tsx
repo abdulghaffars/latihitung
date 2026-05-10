@@ -19,6 +19,7 @@ export default function LatihitungPage() {
   const [lives, setLives] = useState<number>(3);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState<QuestionData | null>(null);
+  const [streak, setStreak] = useState<number>(0);
 
   const startGame = (name: string) => {
     setUserName(name);
@@ -30,6 +31,7 @@ export default function LatihitungPage() {
     setLevel(1);
     setScore(0);
     setLives(3);
+    setStreak(0);
     setHistory([]);
     setCurrentQuestion(generateQuestion(1));
     setCurrentPage('quiz');
@@ -74,22 +76,32 @@ export default function LatihitungPage() {
     let newLevel = level;
     let newLives = lives;
     let currentScore = score;
+    let currentStreak = streak; 
 
-    if (isCorrect && timeTaken < 10) {
-      newLevel = level + 1;
-      currentScore += (10 * level);
-    } else if (!isCorrect) {
+    if (isCorrect) {
+      currentStreak += 1;
+      
+      const bonusMultiplier = Math.floor(currentStreak / 3);
+      const pointsEarned = 10 + (5 * bonusMultiplier);
+      currentScore += pointsEarned;
+
+      if (timeTaken < 10) {
+        newLevel = level + 1;
+      }
+    } else {
+      currentStreak = 0; 
+      currentScore -= 10;
       newLevel = Math.max(1, level - 1);
+
       if (mode === 'endless_survival') {
         newLives -= 1;
         setLives(newLives);
       }
-    } else if (isCorrect) {
-      currentScore += 5;
     }
 
     setScore(currentScore);
     setLevel(newLevel);
+    setStreak(currentStreak);
 
     const newHistoryItem: HistoryItem = {
       question: currentQuestion.question,
@@ -99,8 +111,8 @@ export default function LatihitungPage() {
       timeTaken,
       levelActive: level
     };
-    const updatedHistory = [...history, newHistoryItem];
     
+    const updatedHistory = [...history, newHistoryItem];
     setHistory(updatedHistory);
 
     if (mode === 'endless_survival' && newLives <= 0) {
