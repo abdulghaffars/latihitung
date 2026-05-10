@@ -1,4 +1,3 @@
-// Ekspor agar tipe data ini bisa dipakai di state utama
 export interface HistoryItem {
   question: string;
   correctAnswer: number;
@@ -15,7 +14,6 @@ interface LatihitungRecapProps {
 }
 
 export default function LatihitungRecap({ history, score, onRestart }: LatihitungRecapProps) {
-
   const correctAnswers = history.filter(item => item.isCorrect).length;
   const incorrectAnswers = history.filter(item => !item.isCorrect).length;
 
@@ -34,6 +32,7 @@ export default function LatihitungRecap({ history, score, onRestart }: Latihitun
         <table className="w-full border-collapse bg-white shadow-sm rounded-lg overflow-hidden">
           <thead className="bg-gray-800 text-white">
             <tr>
+              <th className="p-3 text-center w-20">Level</th>
               <th className="p-3 text-left">Soal</th>
               <th className="p-3 text-left">Jawabanmu</th>
               <th className="p-3 text-center">Status</th>
@@ -43,6 +42,9 @@ export default function LatihitungRecap({ history, score, onRestart }: Latihitun
           <tbody>
             {history.map((item, index) => (
               <tr key={index} className="border-b hover:bg-gray-50">
+                <td className="p-3 text-center font-bold text-gray-600">
+                  {item.levelActive}
+                </td>
                 <td className="p-3">{item.question}</td>
                 <td className="p-3">{item.userAnswer}</td>
                 <td className="p-3 text-center">

@@ -12,6 +12,7 @@ type ModeState = 'time_attack' | 'endless_santai' | 'endless_survival' | '';
 
 export default function LatihitungPage() {
   const [currentPage, setCurrentPage] = useState<PageState>('home');
+  const [userName, setUserName] = useState<string>('');
   const [mode, setMode] = useState<ModeState>('');
   const [level, setLevel] = useState<number>(1);
   const [score, setScore] = useState<number>(0);
@@ -19,7 +20,10 @@ export default function LatihitungPage() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState<QuestionData | null>(null);
 
-  const startGame = () => setCurrentPage('modeSelect');
+  const startGame = (name: string) => {
+    setUserName(name);
+    setCurrentPage('modeSelect');
+  };
 
   const selectMode = (selectedMode: string) => {
     setMode(selectedMode as ModeState);
@@ -31,6 +35,37 @@ export default function LatihitungPage() {
     setCurrentPage('quiz');
   };
 
+  const saveScoreToDatabase = async (finalScore: number, finalHistory: HistoryItem[]) => {
+    if (!userName || finalHistory.length === 0) return;
+
+    const correctAnswers = finalHistory.filter(item => item.isCorrect).length;
+    const incorrectAnswers = finalHistory.filter(item => !item.isCorrect).length;
+
+    try {
+      const res = await fetch('/api/save-score', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          playerName: userName,
+          score: finalScore,
+          mode: mode,
+          correctAnswers,
+          incorrectAnswers,
+          historyDetail: finalHistory,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        console.log("Mantap! Skor dan histori berhasil disimpan ke database Neon.");
+      } else {
+        console.error("Gagal menyimpan dari server:", data.error);
+      }
+    } catch (error) {
+      console.error("Gagal melakukan fetch ke API:", error);
+    }
+  };
+
   const handleAnswer = (userAnswer: number, timeTaken: number) => {
     if (!currentQuestion) return;
 
@@ -38,10 +73,11 @@ export default function LatihitungPage() {
     
     let newLevel = level;
     let newLives = lives;
+    let currentScore = score;
 
     if (isCorrect && timeTaken < 10) {
       newLevel = level + 1;
-      setScore(prev => prev + (10 * level)); 
+      currentScore += (10 * level);
     } else if (!isCorrect) {
       newLevel = Math.max(1, level - 1);
       if (mode === 'endless_survival') {
@@ -49,29 +85,40 @@ export default function LatihitungPage() {
         setLives(newLives);
       }
     } else if (isCorrect) {
-      setScore(prev => prev + 5); 
+      currentScore += 5;
     }
 
+    setScore(currentScore);
     setLevel(newLevel);
 
-    setHistory(prev => [...prev, {
+    const newHistoryItem: HistoryItem = {
       question: currentQuestion.question,
       correctAnswer: currentQuestion.correctAnswer,
       userAnswer,
       isCorrect,
       timeTaken,
       levelActive: level
-    }]);
+    };
+    const updatedHistory = [...history, newHistoryItem];
+    
+    setHistory(updatedHistory);
 
     if (mode === 'endless_survival' && newLives <= 0) {
       setCurrentPage('recap');
+      saveScoreToDatabase(currentScore, updatedHistory);
     } else {
       setCurrentQuestion(generateQuestion(newLevel));
     }
   };
 
-  const endSession = () => setCurrentPage('recap');
-  const restartToHome = () => setCurrentPage('home');
+  const endSession = () => {
+    setCurrentPage('recap');
+    saveScoreToDatabase(score, history); 
+  };
+
+  const restartToHome = () => {
+    setCurrentPage('home');
+  };
 
   return (
     <main className="min-h-screen bg-white text-black p-4 font-sans">
