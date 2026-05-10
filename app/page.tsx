@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import LatihitungHome from '@/components/latihitungHome';
 import LatihitungMode from '@/components/latihitungMode';
 import LatihitungQuiz from '@/components/latihitungQuiz';
@@ -20,6 +20,23 @@ export default function LatihitungPage() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState<QuestionData | null>(null);
   const [streak, setStreak] = useState<number>(0);
+
+  const [isInitializing, setIsInitializing] = useState<boolean>(true);
+
+  useEffect(() => {
+    const savedName = localStorage.getItem('latihitung_playerName');
+    
+    setTimeout(() => {
+      if (savedName) {
+        setUserName(savedName);
+        setCurrentPage('modeSelect'); 
+      } else {
+        setCurrentPage('home'); 
+      }
+      
+      setIsInitializing(false);
+    }, 0);
+  }, []);
 
   const startGame = (name: string) => {
     setUserName(name);
@@ -137,6 +154,10 @@ export default function LatihitungPage() {
     setUserName('');
     setCurrentPage('home');
   };
+
+  if (isInitializing) {
+    return <main className="min-h-screen bg-white" />;
+  }
 
   return (
     <main className="min-h-screen bg-white text-black p-4 font-sans">
