@@ -72,15 +72,15 @@ export default function LatihitungPage() {
     if (!currentQuestion) return;
 
     const isCorrect = userAnswer === currentQuestion.correctAnswer;
-    
+
     let newLevel = level;
     let newLives = lives;
     let currentScore = score;
-    let currentStreak = streak; 
+    let currentStreak = streak;
 
     if (isCorrect) {
       currentStreak += 1;
-      
+
       const bonusMultiplier = Math.floor(currentStreak / 3);
       const pointsEarned = 10 + (5 * bonusMultiplier);
       currentScore += pointsEarned;
@@ -89,7 +89,7 @@ export default function LatihitungPage() {
         newLevel = level + 1;
       }
     } else {
-      currentStreak = 0; 
+      currentStreak = 0;
       currentScore -= 10;
       newLevel = Math.max(1, level - 1);
 
@@ -111,7 +111,7 @@ export default function LatihitungPage() {
       timeTaken,
       levelActive: level
     };
-    
+
     const updatedHistory = [...history, newHistoryItem];
     setHistory(updatedHistory);
 
@@ -125,28 +125,34 @@ export default function LatihitungPage() {
 
   const endSession = () => {
     setCurrentPage('recap');
-    saveScoreToDatabase(score, history); 
+    saveScoreToDatabase(score, history);
   };
 
   const restartToHome = () => {
+    setCurrentPage('modeSelect');
+  };
+
+  const handleChangeName = () => {
+    localStorage.removeItem('latihitung_playerName');
+    setUserName('');
     setCurrentPage('home');
   };
 
   return (
     <main className="min-h-screen bg-white text-black p-4 font-sans">
       {currentPage === 'home' && <LatihitungHome onStart={startGame} />}
-      {currentPage === 'modeSelect' && <LatihitungMode onSelectMode={selectMode} />}
+      {currentPage === 'modeSelect' && <LatihitungMode userName={userName} onSelectMode={selectMode} onChangeName={handleChangeName} />}
       {currentPage === 'quiz' && (
-        <LatihitungQuiz 
-        mode={mode} 
-        level={level} 
-        score={score} 
-        lives={lives}
-        streak={streak}
-        questionData={currentQuestion}
-        onAnswer={handleAnswer}
-        onEndSession={endSession}
-      />
+        <LatihitungQuiz
+          mode={mode}
+          level={level}
+          score={score}
+          lives={lives}
+          streak={streak}
+          questionData={currentQuestion}
+          onAnswer={handleAnswer}
+          onEndSession={endSession}
+        />
       )}
       {currentPage === 'recap' && (
         <LatihitungRecap history={history} score={score} onRestart={restartToHome} />

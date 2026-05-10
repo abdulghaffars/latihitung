@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface LatihitungHomeProps {
   onStart: (name: string) => void;
@@ -6,6 +6,22 @@ interface LatihitungHomeProps {
 
 export default function LatihitungHome({ onStart }: LatihitungHomeProps) {
   const [name, setName] = useState('');
+
+  useEffect(() => {
+    const savedName = localStorage.getItem('latihitung_playerName');
+    if (savedName) {
+      setTimeout(() => {
+        setName(savedName);
+      }, 0);
+    }
+  }, []);
+
+  const handleStart = () => {
+    if (name.trim()) {
+      localStorage.setItem('latihitung_playerName', name.trim());
+      onStart(name.trim());
+    }
+  };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6">
@@ -21,7 +37,7 @@ export default function LatihitungHome({ onStart }: LatihitungHomeProps) {
       />
 
       <button 
-        onClick={() => onStart(name)}
+        onClick={handleStart} 
         disabled={!name.trim()}
         className="px-8 py-3 text-lg font-semibold text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition disabled:bg-gray-300 disabled:cursor-not-allowed"
       >
