@@ -6,16 +6,18 @@ interface LatihitungQuizProps {
   level: number;
   score: number;
   lives: number;
+  streak: number;
   questionData: QuestionData | null;
   onAnswer: (answer: number, timeTaken: number) => void;
   onEndSession: () => void;
 }
 
-export default function LatihitungQuiz({ 
-  mode, level, score, lives, questionData, onAnswer, onEndSession 
+export default function LatihitungQuiz({
+  mode, level, score, lives, streak, questionData, onAnswer, onEndSession
 }: LatihitungQuizProps) {
   const questionStartMsRef = useRef<number>(0);
   const [timeLeft, setTimeLeft] = useState<number>(60);
+
   useEffect(() => {
     questionStartMsRef.current = performance.now();
   }, [questionData]);
@@ -45,7 +47,8 @@ export default function LatihitungQuiz({
 
   return (
     <div className="flex flex-col items-center w-full max-w-2xl mx-auto py-8 space-y-8">
-      <div className="flex justify-between w-full p-4 bg-gray-100 rounded-lg font-semibold text-gray-700">
+
+      <div className="flex justify-between w-full p-4 bg-gray-100 rounded-lg font-semibold text-gray-700 shadow-sm">
         <div>Mode: {mode.replace('_', ' ').toUpperCase()}</div>
         <div>Level: {level}</div>
         <div>Skor: {score}</div>
@@ -53,23 +56,35 @@ export default function LatihitungQuiz({
         {mode === 'time_attack' && <div>Waktu: {timeLeft}s</div>}
       </div>
 
-      <div className="text-6xl font-bold text-center py-10">
+      <div className="h-auto flex items-center justify-center">
+        {streak >= 2 ? (
+          <div className={`text-2xl font-black ${streak >= 3 ? 'text-orange-500 animate-pulse' : 'text-blue-500'}`}>
+            {streak >= 3 ? '🔥 COMBO x' : '⚡ Streak x'}{streak}!
+          </div>
+        ) : (
+          <div className="text-2xl font-black invisible pointer-events-none select-none">
+            &nbsp;
+          </div>
+        )}
+      </div>
+
+      <div className="text-6xl font-bold text-center py-6">
         {questionData.question} = ?
       </div>
 
       <div className="grid grid-cols-2 gap-4 w-full">
         {questionData.options.map((opt, idx) => (
-          <button 
+          <button
             key={idx}
             onClick={(e) => handleAnswerClick(opt, e)}
-            className="p-6 text-2xl font-bold bg-white border-4 border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition"
+            className="p-6 text-2xl font-bold bg-white border-4 border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 hover:shadow-md transition-all"
           >
             {opt}
           </button>
         ))}
       </div>
 
-      <button 
+      <button
         onClick={onEndSession}
         className="mt-8 px-6 py-2 text-red-500 underline hover:text-red-700"
       >

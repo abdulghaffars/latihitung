@@ -138,14 +138,15 @@ export default function LatihitungPage() {
       {currentPage === 'modeSelect' && <LatihitungMode onSelectMode={selectMode} />}
       {currentPage === 'quiz' && (
         <LatihitungQuiz 
-          mode={mode} 
-          level={level} 
-          score={score} 
-          lives={lives}
-          questionData={currentQuestion}
-          onAnswer={handleAnswer}
-          onEndSession={endSession}
-        />
+        mode={mode} 
+        level={level} 
+        score={score} 
+        lives={lives}
+        streak={streak}
+        questionData={currentQuestion}
+        onAnswer={handleAnswer}
+        onEndSession={endSession}
+      />
       )}
       {currentPage === 'recap' && (
         <LatihitungRecap history={history} score={score} onRestart={restartToHome} />
