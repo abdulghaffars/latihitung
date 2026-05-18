@@ -6,6 +6,7 @@ export interface QuestionData {
 
 export function generateQuestion(
   level: number, 
+  allowedOperators: string[] = ['+', '-'],
   negativeAnswer: boolean = true,
   negativeNumber: boolean = true 
 ): QuestionData {
@@ -19,7 +20,14 @@ export function generateQuestion(
     if (Math.random() > 0.5) num2 = -num2;
   }
   
-  const isAddition = Math.random() > 0.5;
+  let isAddition = true;
+  if (allowedOperators.includes('+') && allowedOperators.includes('-')) {
+    isAddition = Math.random() > 0.5;
+  } else if (allowedOperators.includes('+')) {
+    isAddition = true;
+  } else if (allowedOperators.includes('-')) {
+    isAddition = false;
+  }
   
   let questionStr = '';
   let correctAnswer = 0;
@@ -46,7 +54,6 @@ export function generateQuestion(
     const wrongAnswer = correctAnswer + (Math.floor(Math.random() * 10) - 5);
     
     const isUnique = wrongAnswer !== correctAnswer && !options.includes(wrongAnswer);
-    
     const isValidValue = (negativeAnswer || negativeNumber) ? true : wrongAnswer >= 0;
 
     if(isUnique && isValidValue) {

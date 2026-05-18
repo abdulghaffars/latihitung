@@ -3,11 +3,12 @@
 import { useState, useEffect } from 'react';
 import LatihitungHome from '@/components/latihitungHome';
 import LatihitungMode from '@/components/latihitungMode';
+import LatihitungRules from '@/components/latihitungRules';
 import LatihitungQuiz from '@/components/latihitungQuiz';
 import LatihitungRecap, { HistoryItem } from '@/components/latihitungRecap';
 import { generateQuestion, QuestionData } from '@/utils/mathLogic';
 
-type PageState = 'home' | 'modeSelect' | 'quiz' | 'recap';
+type PageState = 'home' | 'modeSelect' | 'gameRules' | 'quiz' | 'recap';
 type ModeState = 'time_attack' | 'endless_santai' | 'endless_survival' | '';
 
 export default function LatihitungPage() {
@@ -20,6 +21,11 @@ export default function LatihitungPage() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState<QuestionData | null>(null);
   const [streak, setStreak] = useState<number>(0);
+
+  const [gameSettings, setGameSettings] = useState<{ operators: string[]; includeNegative: boolean }>({
+    operators: ['+', '-'],
+    includeNegative: false
+  });
 
   const [isInitializing, setIsInitializing] = useState<boolean>(true);
 
@@ -45,12 +51,17 @@ export default function LatihitungPage() {
 
   const selectMode = (selectedMode: string) => {
     setMode(selectedMode as ModeState);
+    setCurrentPage('gameRules');
+  };
+
+  const handleStartQuizWithSettings = (settings: { operators: string[]; includeNegative: boolean }) => {
+    setGameSettings(settings);
     setLevel(1);
     setScore(0);
     setLives(3);
     setStreak(0);
     setHistory([]);
-    setCurrentQuestion(generateQuestion(1));
+    setCurrentQuestion(generateQuestion(1, settings.operators, settings.includeNegative, settings.includeNegative));
     setCurrentPage('quiz');
   };
 
@@ -136,7 +147,7 @@ export default function LatihitungPage() {
       setCurrentPage('recap');
       saveScoreToDatabase(currentScore, updatedHistory);
     } else {
-      setCurrentQuestion(generateQuestion(newLevel));
+      setCurrentQuestion(generateQuestion(newLevel, gameSettings.operators, gameSettings.includeNegative, gameSettings.includeNegative));
     }
   };
 
@@ -162,7 +173,22 @@ export default function LatihitungPage() {
   return (
     <main className="min-h-screen bg-white text-black p-4 font-sans">
       {currentPage === 'home' && <LatihitungHome onStart={startGame} />}
-      {currentPage === 'modeSelect' && <LatihitungMode userName={userName} onSelectMode={selectMode} onChangeName={handleChangeName} />}
+      
+      {currentPage === 'modeSelect' && (
+        <LatihitungMode 
+          userName={userName} 
+          onSelectMode={selectMode} 
+          onChangeName={handleChangeName} 
+        />
+      )}
+      
+      {currentPage === 'gameRules' && (
+        <LatihitungRules 
+          onBack={() => setCurrentPage('modeSelect')} 
+          onStartQuiz={handleStartQuizWithSettings} 
+        />
+      )}
+
       {currentPage === 'quiz' && (
         <LatihitungQuiz
           mode={mode}
@@ -175,8 +201,13 @@ export default function LatihitungPage() {
           onEndSession={endSession}
         />
       )}
+      
       {currentPage === 'recap' && (
-        <LatihitungRecap history={history} score={score} onRestart={restartToHome} />
+        <LatihitungRecap 
+          history={history} 
+          score={score} 
+          onRestart={restartToHome} 
+        />
       )}
     </main>
   );
