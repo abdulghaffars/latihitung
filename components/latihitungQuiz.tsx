@@ -17,6 +17,9 @@ export default function LatihitungQuiz({
 }: LatihitungQuizProps) {
   const questionStartMsRef = useRef<number>(0);
   const [timeLeft, setTimeLeft] = useState<number>(60);
+  
+  const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
+  const [isAnswerCorrect, setIsAnswerCorrect] = useState<boolean | null>(null);
 
   useEffect(() => {
     questionStartMsRef.current = performance.now();
@@ -39,15 +42,26 @@ export default function LatihitungQuiz({
     answer: number,
     e: React.MouseEvent<HTMLButtonElement>,
   ) => {
+    if (selectedAnswer !== null || !questionData) return;
+
     const timeTaken = (e.timeStamp - questionStartMsRef.current) / 1000;
-    onAnswer(answer, timeTaken);
+    
+    const correct = answer === questionData.correctAnswer;
+    
+    setSelectedAnswer(answer);
+    setIsAnswerCorrect(correct);
+
+    setTimeout(() => {
+      onAnswer(answer, timeTaken);
+      setSelectedAnswer(null);
+      setIsAnswerCorrect(null);
+    }, 400); 
   };
 
   if (!questionData) return <div>Memuat soal...</div>;
 
   return (
     <div className="flex flex-col items-center w-full max-w-2xl mx-auto py-8 space-y-8">
-
       <div className="flex justify-between w-full p-4 bg-gray-100 rounded-lg font-semibold text-gray-700 shadow-sm">
         <div>Mode: {mode.replace('_', ' ').toUpperCase()}</div>
         <div>Level: {level}</div>
@@ -73,15 +87,32 @@ export default function LatihitungQuiz({
       </div>
 
       <div className="grid grid-cols-2 gap-4 w-full">
-        {questionData.options.map((opt, idx) => (
-          <button
-            key={idx}
-            onClick={(e) => handleAnswerClick(opt, e)}
-            className="p-6 text-2xl font-bold bg-white border-4 border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 hover:shadow-md transition-all"
-          >
-            {opt}
-          </button>
-        ))}
+        {questionData.options.map((opt, idx) => {
+          let buttonStyle = "bg-white border-gray-200 text-black hover:border-blue-500 hover:bg-blue-50";
+          
+          if (selectedAnswer !== null) {
+            if (opt === selectedAnswer) {
+              buttonStyle = isAnswerCorrect 
+                ? "bg-green-500 border-green-600 text-white" 
+                : "bg-red-500 border-red-600 text-white";
+            } else if (opt === questionData.correctAnswer && !isAnswerCorrect) {
+              buttonStyle = "bg-green-100 border-green-400 text-green-800";
+            } else {
+              buttonStyle = "bg-gray-50 border-gray-100 text-gray-400";
+            }
+          }
+
+          return (
+            <button
+              key={idx}
+              onClick={(e) => handleAnswerClick(opt, e)}
+              disabled={selectedAnswer !== null}
+              className={`p-6 text-2xl font-bold border-4 rounded-xl shadow-sm transition-all duration-200 ${buttonStyle}`}
+            >
+              {opt}
+            </button>
+          );
+        })}
       </div>
 
       <button
