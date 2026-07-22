@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 
 type SessionData = {
-  id: string;
+  id: number;
   playerName: string;
   mode: string;
   score: number;
