@@ -23,6 +23,14 @@ export default function LatihitungRecap({ history, score, onRestart }: Latihitun
     ? Math.round((correctAnswers / totalQuestions) * 100) 
     : 0;
 
+  // Hitung Level Tertinggi & Terakhir
+  const highestLevel = totalQuestions > 0 
+    ? Math.max(...history.map(item => item.levelActive)) 
+    : 0;
+  const lastLevel = totalQuestions > 0 
+    ? history[totalQuestions - 1].levelActive 
+    : 0;
+
   // Hitung total durasi pengerjaan dari seluruh soal yang dijawab
   const totalSeconds = history.reduce((acc, item) => acc + item.timeTaken, 0);
   const minutes = Math.floor(totalSeconds / 60);
@@ -44,8 +52,8 @@ export default function LatihitungRecap({ history, score, onRestart }: Latihitun
         </p>
       </div>
 
-      {/* Grid Statistik - 2 Kolom di HP, 5 Kolom di Layar Besar */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-4 w-full">
+      {/* Grid Statistik - Diperbarui untuk 7 Item */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 w-full">
         <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center">
           <span className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Skor Akhir</span>
           <span className="text-3xl sm:text-4xl font-black text-blue-600">{score}</span>
@@ -66,8 +74,20 @@ export default function LatihitungRecap({ history, score, onRestart }: Latihitun
           <span className="text-3xl sm:text-4xl font-black text-red-500">{incorrectAnswers}</span>
         </div>
 
-        {/* Kartu Durasi: col-span-2 agar di HP dia melebar penuh dan simetris */}
-        <div className="col-span-2 lg:col-span-1 bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center">
+        {/* Kartu Level Tertinggi */}
+        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center">
+          <span className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Lvl Tertinggi</span>
+          <span className="text-3xl sm:text-4xl font-black text-indigo-500">{highestLevel}</span>
+        </div>
+
+        {/* Kartu Level Terakhir */}
+        <div className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center">
+          <span className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Lvl Terakhir</span>
+          <span className="text-3xl sm:text-4xl font-black text-teal-500">{lastLevel}</span>
+        </div>
+
+        {/* Kartu Durasi: col-span-2 di HP agar melebar penuh dan simetris di baris bawah */}
+        <div className="col-span-2 md:col-span-1 lg:col-span-2 xl:col-span-1 bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col items-center justify-center">
           <span className="text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Durasi Total</span>
           <span className="text-3xl sm:text-4xl font-black text-orange-500">{durationString}</span>
         </div>
@@ -138,12 +158,6 @@ export default function LatihitungRecap({ history, score, onRestart }: Latihitun
         </div>
       </div>
 
-      {/* <button
-        onClick={onRestart}
-        className="w-full sm:w-auto px-8 py-4 text-base sm:text-lg font-bold text-black bg-gray-900 rounded-xl hover:bg-gray-800 hover:shadow-lg focus:ring-4 focus:ring-gray-200 transition-all active:scale-95"
-      >
-        Kembali ke Menu Utama
-      </button> */}
       <button
         onClick={onRestart}
         className="px-8 py-3 text-lg font-semibold text-white bg-gray-800 rounded-lg hover:bg-black transition"
