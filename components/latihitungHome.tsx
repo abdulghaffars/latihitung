@@ -33,7 +33,7 @@ export default function LatihitungHome({ onStart }: LatihitungHomeProps) {
         value={name}
         onChange={(e) => setName(e.target.value)}
         placeholder="Masukkan namamu di sini..." 
-        className="px-4 py-3 min-w-[300px] border-2 border-gray-300 rounded-lg text-lg focus:outline-none focus:border-blue-500 text-center"
+        className="px-4 py-3 min-w-75 border-2 border-gray-300 rounded-lg text-lg focus:outline-none focus:border-blue-500 text-center"
       />
 
       <button 
