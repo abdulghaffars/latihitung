@@ -10,6 +10,7 @@ export async function POST(req: Request) {
       playerName, 
       score, 
       mode, 
+      allowedOperators,
       correctAnswers, 
       incorrectAnswers, 
       historyDetail 
@@ -29,6 +30,7 @@ export async function POST(req: Request) {
         playerName,
         score,
         mode,
+        allowedOperators,
         correctAnswers,
         incorrectAnswers,
         historyDetail, // Data array akan otomatis di-convert menjadi JSON oleh Prisma

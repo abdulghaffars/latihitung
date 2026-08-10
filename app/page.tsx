@@ -23,7 +23,7 @@ export default function LatihitungPage() {
   const [streak, setStreak] = useState<number>(0);
 
   const [gameSettings, setGameSettings] = useState<{ operators: string[]; includeNegative: boolean }>({
-    operators: ['+', '-'],
+    operators: ['+', '-', 'x', '÷'],
     includeNegative: false
   });
 
@@ -79,6 +79,7 @@ export default function LatihitungPage() {
           playerName: userName,
           score: finalScore,
           mode: mode,
+          allowedOperators: gameSettings.operators,
           correctAnswers,
           incorrectAnswers,
           historyDetail: finalHistory,
