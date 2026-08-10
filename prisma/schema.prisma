@@ -15,7 +15,7 @@ model Session {
   playerName       String
   score            Int
   mode             String
-  llowedOperators String[]
+  allowedOperators String[]
   correctAnswers   Int
   incorrectAnswers Int
   historyDetail    Json
