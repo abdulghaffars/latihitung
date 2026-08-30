@@ -20,6 +20,7 @@ export default function LatihitungQuiz({
   
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [isAnswerCorrect, setIsAnswerCorrect] = useState<boolean | null>(null);
+  const isProcessingRef = useRef<boolean>(false);
 
   useEffect(() => {
     questionStartMsRef.current = performance.now();
@@ -29,7 +30,9 @@ export default function LatihitungQuiz({
     if (mode !== 'time_attack') return;
 
     if (timeLeft <= 0) {
-      onEndSession();
+      if (!isProcessingRef.current) {
+        onEndSession();
+      }
       return;
     }
     const interval = setInterval(() => {
@@ -44,6 +47,8 @@ export default function LatihitungQuiz({
   ) => {
     if (selectedAnswer !== null || !questionData) return;
 
+    isProcessingRef.current = true;
+
     const timeTaken = (e.timeStamp - questionStartMsRef.current) / 1000;
     
     const correct = answer === questionData.correctAnswer;
@@ -55,7 +60,12 @@ export default function LatihitungQuiz({
       onAnswer(answer, timeTaken);
       setSelectedAnswer(null);
       setIsAnswerCorrect(null);
+      isProcessingRef.current = false;
     }, 400); 
+    
+    if (mode === 'time_attack' && timeLeft <= 0) {
+      onEndSession();
+    }
   };
 
   if (!questionData) return <div>Memuat soal...</div>;
