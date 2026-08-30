@@ -44,6 +44,14 @@ export default function LatihitungRules({ onBack, onStartQuiz }: LatihitungRules
 
   const isOperatorValid = plusChecked || minusChecked || multipleChecked || divisionChecked;
 
+  const modeList = [
+    { title: 'Penjumlahan (+)', desc: 'Contoh soal: 12 + 5', isChecked: plusChecked, onClick: () => setPlusChecked(!plusChecked) },
+    { title: 'Pengurangan (-)', desc: 'Contoh soal: 15 - 7', isChecked: minusChecked, onClick: () => setMinusChecked(!minusChecked) },
+    { title: 'Perkalian (x)', desc: 'Contoh soal: 6 x 7', isChecked: multipleChecked, onClick: () => setMultipleChecked(!multipleChecked) },
+    { title: 'Pembagian (÷)', desc: 'Contoh soal: 42 ÷ 7', isChecked: divisionChecked, onClick: () => setDivisionChecked(!divisionChecked) },
+    { title: 'Bilangan Negatif', desc: 'Melibatkan angka minus (Contoh: -5 + 8)', isChecked: negativeChecked, onClick: () => setNegativeChecked(!negativeChecked) }
+  ]
+  
   const handleStart = () => {
     if (!isOperatorValid) return;
 
@@ -74,32 +82,9 @@ export default function LatihitungRules({ onBack, onStartQuiz }: LatihitungRules
           Operasi Dasar (Pilih Minimal 1)
         </span>
 
-        <ToggleCard
-          title="Penjumlahan (+)"
-          desc="Contoh soal: 12 + 5"
-          isChecked={plusChecked}
-          onClick={() => setPlusChecked(!plusChecked)}
-        />
-
-        <ToggleCard
-          title="Pengurangan (-)"
-          desc="Contoh soal: 15 - 7"
-          isChecked={minusChecked}
-          onClick={() => setMinusChecked(!minusChecked)}
-        />
-
-        <ToggleCard
-          title="Perkalian (x)"
-          desc="Contoh soal: 6 x 7"
-          isChecked={multipleChecked}
-          onClick={() => setMultipleChecked(!multipleChecked)}
-        />
-        <ToggleCard
-          title="Pembagian (÷)"
-          desc="Contoh soal: 42 ÷ 7"
-          isChecked={divisionChecked}
-          onClick={() => setDivisionChecked(!divisionChecked)}
-        />
+        {modeList.map((mode: { title: string; desc: string; isChecked: boolean; onClick: () => void }) => (
+          <ToggleCard key={mode.title} title={mode.title} desc={mode.desc} isChecked={mode.isChecked} onClick={mode.onClick} />
+        ))}
 
         <div className="flex items-center space-x-4 my-2">
           <div className="flex-1 h-px bg-gray-200"></div>
