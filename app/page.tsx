@@ -6,10 +6,10 @@ import LatihitungMode from '@/components/latihitungMode';
 import LatihitungRules from '@/components/latihitungRules';
 import LatihitungQuiz from '@/components/latihitungQuiz';
 import LatihitungRecap, { HistoryItem } from '@/components/latihitungRecap';
-import { generateQuestion, QuestionData } from '@/utils/mathLogic';
+import { generateQuestion, Operator, QuestionData } from '@/utils/mathLogic';
 
 type PageState = 'home' | 'modeSelect' | 'gameRules' | 'quiz' | 'recap';
-type ModeState = 'time_attack' | 'endless_santai' | 'endless_survival' | '';
+type ModeState = 'time_attack' | 'survival' | 'free_practice' | '';
 
 export default function LatihitungPage() {
   const [currentPage, setCurrentPage] = useState<PageState>('home');
@@ -61,7 +61,7 @@ export default function LatihitungPage() {
     setLives(3);
     setStreak(0);
     setHistory([]);
-    setCurrentQuestion(generateQuestion(1, settings.operators, settings.includeNegative, settings.includeNegative));
+    setCurrentQuestion(generateQuestion(1, settings.operators as Operator[], settings.includeNegative, settings.includeNegative));
     setCurrentPage('quiz');
   };
 
@@ -88,12 +88,12 @@ export default function LatihitungPage() {
 
       const data = await res.json();
       if (data.success) {
-        console.log("Mantap! Skor dan histori berhasil disimpan ke database Neon.");
+        console.log("Well done! Score and history saved to Neon database.");
       } else {
-        console.error("Gagal menyimpan dari server:", data.error);
+        console.error("Failed to save from server:", data.error);
       }
     } catch (error) {
-      console.error("Gagal melakukan fetch ke API:", error);
+      console.error("Failed to fetch to API:", error);
     }
   };
 
@@ -122,7 +122,7 @@ export default function LatihitungPage() {
       currentScore -= 10;
       newLevel = Math.max(1, level - 1);
 
-      if (mode === 'endless_survival') {
+      if (mode === 'survival') {
         newLives -= 1;
         setLives(newLives);
       }
@@ -144,11 +144,11 @@ export default function LatihitungPage() {
     const updatedHistory = [...history, newHistoryItem];
     setHistory(updatedHistory);
 
-    if (mode === 'endless_survival' && newLives <= 0) {
+    if (mode === 'survival' && newLives <= 0) {
       setCurrentPage('recap');
       saveScoreToDatabase(currentScore, updatedHistory);
     } else {
-      setCurrentQuestion(generateQuestion(newLevel, gameSettings.operators, gameSettings.includeNegative, gameSettings.includeNegative));
+      setCurrentQuestion(generateQuestion(newLevel, gameSettings.operators as Operator[], gameSettings.includeNegative, gameSettings.includeNegative));
     }
   };
 

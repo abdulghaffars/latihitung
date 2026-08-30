@@ -7,8 +7,8 @@ interface LatihitungModeProps {
 export default function LatihitungMode({ userName, onSelectMode, onChangeName }: LatihitungModeProps) {
   const modes = [
     { id: 'time_attack', name: 'Time Attack', desc: 'Selesaikan sebanyak mungkin dalam 60 detik.' },
-    { id: 'endless_santai', name: 'Endless Santai', desc: 'Belajar tanpa batas waktu dan nyawa.' },
-    { id: 'endless_survival', name: 'Endless Survival', desc: 'Punya 3 nyawa. Salah = -1 nyawa.' }
+    { id: 'survival', name: 'Survival', desc: 'Punya 3 nyawa. Salah = -1 nyawa.' },
+    { id: 'free_practice', name: 'Latihan Bebas   ', desc: 'Belajar tanpa batas waktu dan nyawa.' }
   ];
 
   return (
