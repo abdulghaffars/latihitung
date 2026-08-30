@@ -32,7 +32,9 @@ export function generateQuestion(
 
   const formatSecondNumber = (num: number) => num < 0 ? `(${num})` : `${num}`;
 
-
+  // ==========================================
+  // LOGIC ADDITION & SUBTRACTION
+  // ==========================================
   if (isAddSubCategory) {
     const maxNumber = 10 + ((level - 1) * 5); 
     
@@ -56,21 +58,39 @@ export function generateQuestion(
     if (isAddition) {
       questionStr = `${num1} + ${formatSecondNumber(num2)}`;
       correctAnswer = num1 + num2;
-      traps.push(num1 - num2); 
+      
+      traps.push(num1 - num2); // false operation
+      if (num1 < 0 || num2 < 0) traps.push(Math.abs(num1) + Math.abs(num2)); // Abaikan tanda
     } else {
       if (negativeAnswer || negativeNumber) {
         questionStr = `${num1} - ${formatSecondNumber(num2)}`;
         correctAnswer = num1 - num2;
-        traps.push(num1 + num2); 
+        
+        traps.push(num1 + num2); // false operation
+        if (num1 < 0 || num2 < 0) {
+          traps.push(Math.abs(num1) + Math.abs(num2));
+          traps.push(Math.abs(num1) - Math.abs(num2));
+        }
       } else {
         const big = Math.max(num1, num2);
         const small = Math.min(num1, num2);
         questionStr = `${big} - ${formatSecondNumber(small)}`;
         correctAnswer = big - small;
-        traps.push(big + small); 
+        
+        traps.push(big + small); // false operation
       }
     }
+
+    // General Trap Add/Sub
+    traps.push(correctAnswer + 10); // false save tens (+10)
+    traps.push(correctAnswer - 10); // false borrow tens (-10)
+    traps.push(correctAnswer + 1);  // false finger calculation (+1)
+    traps.push(correctAnswer - 1);  // false finger calculation (-1)
   } 
+  
+  // ==========================================
+  // LOGIC MULTIPLICATION & DIVISION
+  // ==========================================
   else {
     let maxMulDiv = 10;
     
@@ -99,24 +119,51 @@ export function generateQuestion(
     if (isMultiply) {
       questionStr = `${num1} x ${formatSecondNumber(num2)}`;
       correctAnswer = num1 * num2;
-      traps.push(correctAnswer + Math.abs(num1)); 
-      traps.push(correctAnswer - Math.abs(num1));
+      
+      const slip1 = num1 * (num2 + 1);
+      const slip2 = num1 * (num2 - 1);
+
+      traps.push(num1 + num2); // false operation
+      traps.push(slip1, slip2); // false memory
+      if (slip1 !== 0) traps.push(-slip1);
+      if (slip2 !== 0) traps.push(-slip2);
+      
+      traps.push(correctAnswer + 10, correctAnswer - 10); // false tens
+      if (correctAnswer + 10 !== 0) traps.push(-(correctAnswer + 10));
+      if (correctAnswer - 10 !== 0) traps.push(-(correctAnswer - 10));
+
     } else {
       const dividend = num1 * num2;
       questionStr = `${dividend} ÷ ${formatSecondNumber(num1)}`;
       correctAnswer = num2;
-      traps.push(num2 + 1);
-      traps.push(num2 - 1);
+      
+      traps.push(num2 + 1, num2 - 1); // false memory
+      if (num1 !== correctAnswer) {
+        traps.push(num1);
+        traps.push(-num1);
+      }
+      traps.push(dividend - Math.abs(num1)); // false operation
+      traps.push(dividend + Math.abs(num1));
+      traps.push(correctAnswer + 10, correctAnswer - 10); // false tens
     }
   }
 
+  // ==========================================
+  // FORMING ANSWER OPTIONS (Traps formed)
+  // ==========================================
+
+  // 1. false sign absolute (all operations)
   if (correctAnswer !== 0 && (negativeAnswer || negativeNumber)) {
     traps.push(-correctAnswer); 
   }
 
   let options: number[] = [correctAnswer];
 
-  for (const trap of traps) {
+  // 2. shuffle traps to ensure variety
+  const shuffledTraps = traps.sort(() => Math.random() - 0.5);
+
+  // 3. insert 3 top traps that are unique and valid
+  for (const trap of shuffledTraps) {
     if (options.length >= 4) break;
     
     const isUnique = trap !== correctAnswer && !options.includes(trap);
@@ -127,8 +174,8 @@ export function generateQuestion(
     }
   }
 
+  // 4. fallback if trap is valid less than 3
   const variance = Math.max(10, Math.floor(Math.abs(correctAnswer) * 0.25)); 
-
   while(options.length < 4) {
     const offset = Math.floor(Math.random() * (variance * 2 + 1)) - variance;
     const wrongAnswer = correctAnswer + offset;
@@ -141,6 +188,7 @@ export function generateQuestion(
     }
   }
 
+  // 5. shuffle options A, B, C, D
   options = options.sort(() => Math.random() - 0.5);
 
   return { question: questionStr, correctAnswer, options };
