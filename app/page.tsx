@@ -21,9 +21,10 @@ export default function LatihitungPage() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [currentQuestion, setCurrentQuestion] = useState<QuestionData | null>(null);
   const [streak, setStreak] = useState<number>(0);
+  const hasSavedRef = useRef<boolean>(false);
 
-  const [gameSettings, setGameSettings] = useState<{ operators: string[]; includeNegative: boolean }>({
-    operators: ['+', '-', 'x', '÷'],
+  const [gameSettings, setGameSettings] = useState<{ operators: Operator[]; includeNegative: boolean }>({
+    operators: ['+', '-', 'x', '÷'] as Operator[],
     includeNegative: false
   });
 
@@ -82,6 +83,7 @@ export default function LatihitungPage() {
   };
 
   const handleStartQuizWithSettings = (settings: { operators: string[]; includeNegative: boolean }) => {
+    hasSavedRef.current = false;
     setGameSettings(settings);
     setLevel(1);
     setScore(0);
@@ -99,7 +101,8 @@ export default function LatihitungPage() {
   };
 
   const saveScoreToDatabase = async (finalScore: number, finalHistory: HistoryItem[]) => {
-    if (!userName || finalHistory.length === 0) return;
+    if (!userName || finalHistory.length === 0 || hasSavedRef.current) return;
+    hasSavedRef.current = true;
     const correctAnswers = finalHistory.filter(item => item.isCorrect).length;
     const incorrectAnswers = finalHistory.filter(item => !item.isCorrect).length;
     try {
