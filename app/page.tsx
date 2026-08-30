@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import LatihitungHome from '@/components/latihitungHome';
 import LatihitungMode from '@/components/latihitungMode';
 import LatihitungRules from '@/components/latihitungRules';
@@ -29,6 +29,9 @@ export default function LatihitungPage() {
 
   const [isInitializing, setIsInitializing] = useState<boolean>(true);
 
+  // CACHE: Store the next question in memory without triggering re-render
+  const questionCache = useRef<Record<number, QuestionData>>({});
+
   useEffect(() => {
     const savedName = localStorage.getItem('latihitung_playerName');
     
@@ -43,6 +46,30 @@ export default function LatihitungPage() {
       setIsInitializing(false);
     }, 0);
   }, []);
+
+  // Function to refill the question cache in the background
+  const preloadNextQuestions = (baseLevel: number, settings: { operators: string[]; includeNegative: boolean }) => {
+    const levelsToCache = [
+      Math.max(1, baseLevel - 1), // Destination if down level (min 1)
+      baseLevel,                  // Destination if stay
+      baseLevel + 1               // Destination if up level
+    ];
+
+    // Use Set so that if baseLevel is 1, we don't generate level 1 twice
+    const uniqueLevels = Array.from(new Set(levelsToCache));
+
+    const newCache: Record<number, QuestionData> = {};
+    uniqueLevels.forEach(lvl => {
+      newCache[lvl] = generateQuestion(
+        lvl, 
+        settings.operators as Operator[], 
+        settings.includeNegative, 
+        settings.includeNegative
+      );
+    });
+
+    questionCache.current = newCache;
+  };
 
   const startGame = (name: string) => {
     setUserName(name);
@@ -61,16 +88,20 @@ export default function LatihitungPage() {
     setLives(3);
     setStreak(0);
     setHistory([]);
+    
+    // 1. Give the first question instantly
     setCurrentQuestion(generateQuestion(1, settings.operators as Operator[], settings.includeNegative, settings.includeNegative));
+    
+    // 2. Prepare the next question cache for the next possible steps (Level 1 and Level 2)
+    preloadNextQuestions(1, settings);
+    
     setCurrentPage('quiz');
   };
 
   const saveScoreToDatabase = async (finalScore: number, finalHistory: HistoryItem[]) => {
     if (!userName || finalHistory.length === 0) return;
-
     const correctAnswers = finalHistory.filter(item => item.isCorrect).length;
     const incorrectAnswers = finalHistory.filter(item => !item.isCorrect).length;
-
     try {
       const res = await fetch('/api/save-score', {
         method: 'POST',
@@ -85,13 +116,8 @@ export default function LatihitungPage() {
           historyDetail: finalHistory,
         }),
       });
-
       const data = await res.json();
-      if (data.success) {
-        console.log("Well done! Score and history saved to Neon database.");
-      } else {
-        console.error("Failed to save from server:", data.error);
-      }
+      if (data.success) console.log("Well done! Score and history saved.");
     } catch (error) {
       console.error("Failed to fetch to API:", error);
     }
@@ -109,10 +135,8 @@ export default function LatihitungPage() {
 
     if (isCorrect) {
       currentStreak += 1;
-
       const bonusMultiplier = Math.floor(currentStreak / 3);
-      const pointsEarned = 10 + (5 * bonusMultiplier);
-      currentScore += pointsEarned;
+      currentScore += 10 + (5 * bonusMultiplier);
 
       if (timeTaken < 10) {
         newLevel = level + 1;
@@ -148,7 +172,15 @@ export default function LatihitungPage() {
       setCurrentPage('recap');
       saveScoreToDatabase(currentScore, updatedHistory);
     } else {
-      setCurrentQuestion(generateQuestion(newLevel, gameSettings.operators as Operator[], gameSettings.includeNegative, gameSettings.includeNegative));
+      // 1. Pull the question from the cache instantly without needing to regenerate
+      setCurrentQuestion(
+        questionCache.current[newLevel] ?? generateQuestion(newLevel, gameSettings.operators as Operator[], gameSettings.includeNegative, gameSettings.includeNegative)
+      );      
+      // 2. Command the system to mix a new batch of questions in the background
+      // using setTimeout to avoid blocking the render UI from the new pulled question
+      setTimeout(() => {
+        preloadNextQuestions(newLevel, gameSettings);
+      }, 0);
     }
   };
 

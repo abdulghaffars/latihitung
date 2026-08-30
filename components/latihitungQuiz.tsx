@@ -66,7 +66,7 @@ export default function LatihitungQuiz({
         <div>Mode: {mode.replace('_', ' ').toUpperCase()}</div>
         <div>Level: {level}</div>
         <div>Skor: {score}</div>
-        {mode === 'endless_survival' && <div>Nyawa: {"❤️".repeat(lives)}</div>}
+        {mode === 'survival' && <div>Nyawa: {"❤️".repeat(lives)}</div>}
         {mode === 'time_attack' && <div>Waktu: {timeLeft}s</div>}
       </div>
 
