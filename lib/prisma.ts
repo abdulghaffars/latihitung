@@ -1,16 +1,17 @@
-import { Pool } from 'pg';
+import { Pool, PoolConfig } from 'pg';
 import { PrismaPg } from '@prisma/adapter-pg';
 // Ini yang dipanggil! Path ini mengarah ke client yang sudah di-generate
 import { PrismaClient } from '../app/generated/prisma'; 
+import { SqlDriverAdapterFactory } from '@/app/generated/prisma/runtime/client';
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
 const setupPrisma = () => {
   const connectionString = process.env.DATABASE_URL;
   const pool = new Pool({ connectionString });
-  const adapter = new PrismaPg(pool);
+  const adapter = new PrismaPg(pool as unknown as PoolConfig);
   
-  return new PrismaClient({ adapter, log: ['query'] });
+    return new PrismaClient({ adapter: adapter as unknown as SqlDriverAdapterFactory, log: ['query'] });
 };
 
 // Mengekspor variabel 'prisma' untuk dipakai di file route.ts API kita
