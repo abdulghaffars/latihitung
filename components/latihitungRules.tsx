@@ -41,7 +41,7 @@ export default function LatihitungRules({ onBack, onStartQuiz }: LatihitungRules
   const [negativeChecked, setNegativeChecked] = useState(false);
   const [multipleChecked, setMultipleChecked] = useState(false);
   const [divisionChecked, setDivisionChecked] = useState(false);
-  const [essayChecked, setEssayChecked] = useState(false);
+  // const [essayChecked, setEssayChecked] = useState(false);
 
   const isOperatorValid = plusChecked || minusChecked || multipleChecked || divisionChecked;
 
@@ -54,7 +54,7 @@ export default function LatihitungRules({ onBack, onStartQuiz }: LatihitungRules
 
   const optionalModeList = [
     { title: 'Bilangan Negatif', desc: 'Melibatkan angka minus (Contoh: -5 + 8)', isChecked: negativeChecked, onClick: () => setNegativeChecked(!negativeChecked) },
-    { title: 'Essay', desc: 'isian, tanpa pilihan ganda', isChecked: essayChecked, onClick: () => setEssayChecked(!essayChecked) },
+    // { title: 'Essay', desc: 'isian, tanpa pilihan ganda', isChecked: essayChecked, onClick: () => setEssayChecked(!essayChecked) },
   ]
   
   const handleStart = () => {
@@ -99,12 +99,9 @@ export default function LatihitungRules({ onBack, onStartQuiz }: LatihitungRules
           <div className="flex-1 h-px bg-gray-200"></div>
         </div>
 
-        <ToggleCard
-          title="Bilangan Negatif"
-          desc="Melibatkan angka minus (Contoh: -5 + 8)"
-          isChecked={negativeChecked}
-          onClick={() => setNegativeChecked(!negativeChecked)}
-        />
+        {optionalModeList.map((mode: { title: string; desc: string; isChecked: boolean; onClick: () => void }) => (
+          <ToggleCard key={mode.title} title={mode.title} desc={mode.desc} isChecked={mode.isChecked} onClick={mode.onClick} />
+        ))}
       </div>
 
       <div className="h-6">
