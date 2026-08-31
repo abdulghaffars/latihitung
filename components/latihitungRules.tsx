@@ -78,7 +78,7 @@ export default function LatihitungRules({ onBack, onStartQuiz }: LatihitungRules
       </div>
 
       <div className="grid gap-4 w-full max-w-md">
-        <span className="block text-xs font-bold text-gray-400 uppercase tracking-wider text-center mb-[-4px]">
+        <span className="block text-xs font-bold text-gray-400 uppercase tracking-wider text-center -mb-2">
           Operasi Dasar (Pilih Minimal 1)
         </span>
 

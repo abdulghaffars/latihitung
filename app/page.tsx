@@ -82,9 +82,9 @@ export default function LatihitungPage() {
     setCurrentPage('gameRules');
   };
 
-  const handleStartQuizWithSettings = (settings: { operators: string[]; includeNegative: boolean }) => {
+  const handleStartQuizWithSettings = (settings: { operators: Operator[]; includeNegative: boolean }) => {
     hasSavedRef.current = false;
-    setGameSettings(settings);
+    setGameSettings(settings as { operators: Operator[]; includeNegative: boolean });
     setLevel(1);
     setScore(0);
     setLives(3);
@@ -221,7 +221,7 @@ export default function LatihitungPage() {
       {currentPage === 'gameRules' && (
         <LatihitungRules 
           onBack={() => setCurrentPage('modeSelect')} 
-          onStartQuiz={handleStartQuizWithSettings} 
+          onStartQuiz={handleStartQuizWithSettings as (settings: { operators: string[]; includeNegative: boolean }) => void} 
         />
       )}
 
