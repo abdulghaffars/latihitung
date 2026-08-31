@@ -41,6 +41,7 @@ export default function LatihitungRules({ onBack, onStartQuiz }: LatihitungRules
   const [negativeChecked, setNegativeChecked] = useState(false);
   const [multipleChecked, setMultipleChecked] = useState(false);
   const [divisionChecked, setDivisionChecked] = useState(false);
+  const [essayChecked, setEssayChecked] = useState(false);
 
   const isOperatorValid = plusChecked || minusChecked || multipleChecked || divisionChecked;
 
@@ -49,7 +50,11 @@ export default function LatihitungRules({ onBack, onStartQuiz }: LatihitungRules
     { title: 'Pengurangan (-)', desc: 'Contoh soal: 15 - 7', isChecked: minusChecked, onClick: () => setMinusChecked(!minusChecked) },
     { title: 'Perkalian (x)', desc: 'Contoh soal: 6 x 7', isChecked: multipleChecked, onClick: () => setMultipleChecked(!multipleChecked) },
     { title: 'Pembagian (÷)', desc: 'Contoh soal: 42 ÷ 7', isChecked: divisionChecked, onClick: () => setDivisionChecked(!divisionChecked) },
-    { title: 'Bilangan Negatif', desc: 'Melibatkan angka minus (Contoh: -5 + 8)', isChecked: negativeChecked, onClick: () => setNegativeChecked(!negativeChecked) }
+  ]
+
+  const optionalModeList = [
+    { title: 'Bilangan Negatif', desc: 'Melibatkan angka minus (Contoh: -5 + 8)', isChecked: negativeChecked, onClick: () => setNegativeChecked(!negativeChecked) },
+    { title: 'Essay', desc: 'isian, tanpa pilihan ganda', isChecked: essayChecked, onClick: () => setEssayChecked(!essayChecked) },
   ]
   
   const handleStart = () => {
